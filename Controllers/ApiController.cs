@@ -53,14 +53,7 @@ namespace MSIT158Site.Controllers
             return NotFound();
         }
 
-        public IActionResult Register(int id, string name, int age = 20)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                name = "guest";
-            }
-            return Content($"{id}  -  {name} 好!! 你 {age} 歲了", "text/html", System.Text.Encoding.UTF8);
-        }
+       
 
         [HttpGet]
         public IActionResult CheckAccountAction(string name, string email, int age)
@@ -112,9 +105,14 @@ namespace MSIT158Site.Controllers
             }
         }
 
-
-
-
+        public IActionResult Register(MemberDTO member)
+        {
+            if (string.IsNullOrEmpty(member.userName))
+            {
+                member.userName = "guest";
+            }
+            return Content($"Hello {member.userName}，{member.Age} 歲了，電子郵件是 {member.Email}", "text/html", System.Text.Encoding.UTF8);
+        }
 
     }
 }

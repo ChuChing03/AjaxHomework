@@ -3,19 +3,41 @@
 }
 
 <h1>Homework2</h1>
-<form id="checkForm">
-    <p>姓名:</p>
-    <input type="text" id="name" />
-    <div id="nameError"></div>
-    <p>電子郵件:</p>
-    <input type="text" id="email" />
-    <div id="emailError"></div>
-    <p>年紀:</p>
-    <input type="text" id="age" />
-    <div id="ageError"></div><br />
-    <button type="submit" class="btn-primary">送出</button>
+<form id="checkForm" class="container" style="position: relative;">
+    <div class="form-group">
+        <label for="name">姓名:</label>
+        <div class="input-group" style="width: 200px; position: relative;">
+            <input type="text" class="form-control" id="name" />
+            <div id="nameError" class="input-group-append" style="position: absolute; right: -160px; top: 0;"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="email">電子郵件:</label>
+        <div class="input-group" style="width: 500px; position: relative;">
+            <input type="text" class="form-control" id="email" />
+            <div id="emailError" class="input-group-append" style="position: absolute; right: -160px; top: 0;"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="age">年紀:</label>
+        <div class="input-group" style="width: 100px; position: relative;">
+            <input type="text" class="form-control" id="age" />
+            <div id="ageError" class="input-group-append" style="position: absolute; right: -160px; top: 0;"></div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">送出</button>
     <div id="result"></div>
 </form>
+
+
+
+
+
+
+
+
+
+
 
 @section Styles {
     <style>

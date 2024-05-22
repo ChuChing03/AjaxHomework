@@ -1,10 +1,38 @@
+﻿﻿
+
 ﻿
 @{
     ViewData["Title"] = "Register";
 }
 
-<h1>Register</h1>
-<div id="div1"></div>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <h1>Register</h1>
+        <form method="post" action="~/api/register" id="userForm">
+            <div class="mb-3">
+                <label for="InputName" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="InputName" name="userName">
+
+            </div>
+            <div class="mb-3">
+                <label for="InputEmail" class="form-label">電子郵件</label>
+                <input type="email" class="form-control" id="InputEmail" name="email">
+            </div>
+            <div class="mb-3">
+                <label for="InputAge" class="form-label">年紀</label>
+                <input type="number" class="form-control" id="InputAge" name="age">
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="buttonSubmit">送出</button>
+        </form>
+        <div id="div1" class="alert alert-info mt-3"></div>
+
+    </div>
+    <div class="col-3"></div>
+</div>
+
 @section Styles{
     <style>
 
@@ -14,12 +42,60 @@
 @section Scripts{
     <script>
         const divResult = document.querySelector('#div1');
+        const btnSubmit = document.querySelector('#buttonSubmit');
+        const inpName = document.querySelector('#InputName');
+        const inpEmail = document.querySelector('#InputEmail');
+        const inpAge = document.querySelector('#InputAge');
 
-      (async ()=>{
-            const url = '@Url.Content("~/api/register")?id=1&age=29&name=Mary';
-            const response = await fetch(url);
+
+
+        btnSubmit.addEventListener('click', async (evt) => {
+            evt.preventDefault(); //防止預設行為的發生
+
+            //將資料放進FormData
+            const myForm = document.querySelector('#userForm');
+            const formData = new FormData(myForm);
+
+            //formData.append("password", "12345678");
+            //讀出formData中的資料
+            //for(const pair of formData.entries()){
+            //    console.log(`${pair[0]}:${pair[1]}`);
+            //}
+
+            // 這裡宣告了一個變數 url，用來存儲 API 的路徑
+            const url = '@Url.Content("~/api/register/")';
+
+            // 使用 fetch 函數發送一個 POST 請求到指定的 API 位址
+            const response = await fetch(url, {
+                // 指定請求的 HTTP 方法為 POST 
+                // GET：通過 URL 的 query string 傳遞數據。數據以鍵值對的形式附加到 URL 的末尾，例如 ?name=John&age=30。
+                //POST：通過請求主體（request body）傳遞數據。數據被包含在請求的主體中，並且通常以表單數據（Form Data）的形式進行傳遞。
+                method: 'POST',
+
+                // 將表單數據作為請求主體傳遞給伺服器
+                // formData 是一個包含了表單數據的 FormData 物件
+                body: formData
+            });
+
+
             const data = await response.text();
-            divResult.innerHTML = data;
-      })();
+            divResult.textContent = data;
+
+
+            //console.log(inpName.value);
+            //const url = `@Url.Content("~/api/register/")?email=${inpEmail.value}&age=${inpAge.value}&name=${inpName.value}`;
+
+            //const response =  await fetch(url);
+            //const data = await response.text();
+            //divResult.textContent = data;
+
+        })
+
+              //(async ()=>{
+              //      const url = '@Url.Content("~/api/register")?id=1&age=29&name=Mary';
+              //      const response = await fetch(url);
+              //      const data = await response.text();
+              //      divResult.innerHTML = data;
+              //})();
     </script>
 }
