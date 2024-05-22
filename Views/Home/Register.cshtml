@@ -1,6 +1,8 @@
 ﻿﻿
 
 ﻿
+
+﻿
 @{
     ViewData["Title"] = "Register";
 }
@@ -13,7 +15,7 @@
         <form method="post" action="~/api/register" id="userForm">
             <div class="mb-3">
                 <label for="InputName" class="form-label">姓名</label>
-                <input type="text" class="form-control" id="InputName" name="userName">
+                <input type="text" class="form-control" id="InputName" name="name">
 
             </div>
             <div class="mb-3">
@@ -23,6 +25,11 @@
             <div class="mb-3">
                 <label for="InputAge" class="form-label">年紀</label>
                 <input type="number" class="form-control" id="InputAge" name="age">
+            </div>
+            <div class="mb-3">
+                @* //for 屬性用於建立 <label> 元素與表單控件之間的關聯 點擊文字標籤 他會跳到檔案輸入框*@
+                <label for="formFile" class="form-label">圖像</label>
+                <input class="form-control" type="file" id="formFile" name="avatar">
             </div>
 
             <button type="submit" class="btn btn-primary" id="buttonSubmit">送出</button>
@@ -61,22 +68,11 @@
             //for(const pair of formData.entries()){
             //    console.log(`${pair[0]}:${pair[1]}`);
             //}
-
-            // 這裡宣告了一個變數 url，用來存儲 API 的路徑
             const url = '@Url.Content("~/api/register/")';
-
-            // 使用 fetch 函數發送一個 POST 請求到指定的 API 位址
             const response = await fetch(url, {
-                // 指定請求的 HTTP 方法為 POST 
-                // GET：通過 URL 的 query string 傳遞數據。數據以鍵值對的形式附加到 URL 的末尾，例如 ?name=John&age=30。
-                //POST：通過請求主體（request body）傳遞數據。數據被包含在請求的主體中，並且通常以表單數據（Form Data）的形式進行傳遞。
                 method: 'POST',
-
-                // 將表單數據作為請求主體傳遞給伺服器
-                // formData 是一個包含了表單數據的 FormData 物件
                 body: formData
             });
-
 
             const data = await response.text();
             divResult.textContent = data;
@@ -99,3 +95,4 @@
               //})();
     </script>
 }
+
