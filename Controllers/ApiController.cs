@@ -204,6 +204,7 @@ namespace MSIT158Site.Controllers
 
             return Json(spotsPaging);
         }
+        
     }
 
 }
