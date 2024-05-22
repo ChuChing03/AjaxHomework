@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Homework1";
+}
+@*//https://localhost:7068/Homework/index*@
+<h1>Homework1</h1>
+<div id="card-container" class="row row-cols-1 row-cols-md-3 g-4">
+</div>
+
+
+
+
+@section Styles {
+    <style>
+
+
+    </style>
+}
+@section Scripts {
+    <script src="~/js/travel.js"></script>
+    <script>
+        //從 spots 物件中獲取資料，該物件有一個 CommonFormat 的屬性其中包含一個名為 Section 的子屬性
+        const sections = spots.CommonFormat.Section;
+
+
+        const cardContainer = document.getElementById('card-container');
+
+        sections.forEach(section => {
+            for (let i = 0; i < section.file.img.length; i++) {
+                const card = document.createElement('div');
+                card.classList.add('col');
+
+                // 限制顯示文字的字數
+                const maxLength = 100; // 設定最大顯示字數
+                const truncatedXbody = section.xbody.length > maxLength ? section.xbody.substring(0, maxLength) + "..." : section.xbody;
+
+
+                card.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${section.file.img[i].text}" class="card-img-top" alt="${section.file.img[i].text}">
+                            <div class="card-body">
+                                <h5 class="card-title">${section.stitle}</h5>
+                                <p class="card-text">${truncatedXbody}</p>
+                            </div>
+                        </div>
+                    `;
+
+                // 將卡片添加到容器中
+                cardContainer.appendChild(card);
+            }
+
+
+        });
+
+    </script>
+}
+
+
+}

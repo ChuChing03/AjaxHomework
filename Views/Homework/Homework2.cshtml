@@ -1,0 +1,112 @@
+﻿@{
+    ViewData["Title"] = "Homework2";
+}
+
+<h1>Homework2</h1>
+<form id="checkForm">
+    <p>姓名:</p>
+    <input type="text" id="name" />
+    <div id="nameError"></div>
+    <p>電子郵件:</p>
+    <input type="text" id="email" />
+    <div id="emailError"></div>
+    <p>年紀:</p>
+    <input type="text" id="age" />
+    <div id="ageError"></div><br />
+    <button type="submit" class="btn-primary">送出</button>
+    <div id="result"></div>
+</form>
+
+@section Styles {
+    <style>
+        input[type="text"] {
+            width: 300px;
+        }
+        
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // 當姓名輸入框發生輸入事件時
+        document.getElementById("name").addEventListener("input", async function () {
+            let name = document.getElementById("name").value; // 獲取輸入的姓名
+            let nameErrorDiv = document.getElementById("nameError"); // 獲取姓名錯誤提示的 div 元素
+
+            // 如果姓名為空
+            if (!name) {
+                nameErrorDiv.innerHTML = ""; // 清空錯誤提示
+                return;
+            }
+
+            try {
+                // 發起 API 請求，檢查姓名是否可用
+                const response = await fetch(`@Url.Action("CheckName", "Api")?name=${name}`);
+                if (response.ok) {
+                    const data = await response.text();
+                    nameErrorDiv.innerHTML = data; // 顯示姓名檢查結果
+                } else {
+                    nameErrorDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+                }
+            } catch (error) {
+                nameErrorDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+            }
+        });
+
+        // 當郵件輸入框發生輸入事件時
+        document.getElementById("email").addEventListener("input", async function () {
+            let email = document.getElementById("email").value; // 獲取輸入的郵件
+            let emailErrorDiv = document.getElementById("emailError"); // 獲取郵件錯誤提示的 div 元素
+
+            // 如果郵件為空
+            if (!email) {
+                emailErrorDiv.innerHTML = ""; // 清空錯誤提示
+                return;
+            }
+
+            try {
+                // 發起 API 請求，檢查郵件是否可用
+                const response = await fetch(`@Url.Action("CheckEmail", "Api")?email=${email}`);
+                if (response.ok) {
+                    const data = await response.text();
+                    emailErrorDiv.innerHTML = data; // 顯示郵件檢查結果
+                } else {
+                    emailErrorDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+                }
+            } catch (error) {
+                emailErrorDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+            }
+        });
+
+        // 當表單提交時
+        document.getElementById("checkForm").addEventListener("submit", async function (event) {
+            event.preventDefault(); // 阻止表單默認提交行為
+
+            let name = document.getElementById("name").value; // 獲取姓名
+            let email = document.getElementById("email").value; // 獲取郵件
+            let age = document.getElementById("age").value; // 獲取年齡
+            let resultDiv = document.getElementById("result"); // 獲取結果提示的 div 元素
+
+            resultDiv.innerHTML = ""; // 清空結果提示
+
+            // 如果姓名、郵件或年齡有一個為空
+            if (!name || !email || !age) {
+                resultDiv.innerHTML = "請填寫所有欄位。"; // 顯示填寫所有欄位的錯誤提示
+                return;
+            }
+
+            try {
+                // 發起 API 請求，檢查帳戶信息是否正確
+                const response = await fetch(`@Url.Action("CheckAccountAction", "Api")?name=${name}&email=${email}&age=${age}`);
+                if (response.ok) {
+                    const data = await response.text();
+                    resultDiv.innerHTML = data; // 顯示結果
+                } else {
+                    resultDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+                }
+            } catch (error) {
+                resultDiv.innerHTML = "發生錯誤，請稍後再試。"; // 顯示錯誤提示
+            }
+        });
+    </script>
+}
