@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MSIT158Site.Models;
+using MSIT158Site.Models.DTO;
 using Newtonsoft.Json;
 
 namespace MSIT158Site.Controllers
@@ -138,13 +139,70 @@ namespace MSIT158Site.Controllers
                 avatar.CopyTo(fileStream); // 將上傳的檔案資料複製到創建的檔案串流中
             }
 
+           
+            // 宣告一個用來存放二進位資料的 byte 陣列
+            byte[] imgByte = null;
+
+            // 使用 MemoryStream 創建一個記憶體串流，用來臨時存放從客戶端上傳的檔案資料
+            using (var memoryStream = new MemoryStream())
+            {
+                // 將從客戶端上傳的檔案資料複製到記憶體串流中
+                avatar.CopyTo(memoryStream);
+
+                // 將記憶體串流中的資料轉換為 byte 陣列
+                imgByte = memoryStream.ToArray();
+            }
+
+
+            //寫進資料庫
+            member.FileName = avatar.FileName;
+            member.FileData = imgByte;
+            _context.Members.Add(member);
+            _context.SaveChanges();
 
             return Content(info, "text/plain", System.Text.Encoding.UTF8);
-            //寫進資料庫
-            //_context.Members.Add(member);
-            //_context.SaveChanges();
+           
 
-            // return Content($"Hello {member.Name}，{member.Age} 歲了，電子郵件是 {member.Email}", "text/html", System.Text.Encoding.UTF8);
+         
+        }
+
+        [HttpPost]
+        public IActionResult Spots([FromBody] SearchDTO searchDTO)
+        {
+            //根據分類編號搜尋景點資料
+            var spots = searchDTO.categoryId == 0 ? _context.SpotImagesSpots : _context.SpotImagesSpots.Where(s => s.CategoryId == searchDTO.categoryId);
+
+            //根據關鍵字搜尋景點資料(title、desc)
+            if (!string.IsNullOrEmpty(searchDTO.keyword))
+            {
+                spots = spots.Where(s => s.SpotTitle.Contains(searchDTO.keyword) || s.SpotDescription.Contains(searchDTO.keyword));
+            }
+
+
+
+
+            //總共有多少筆資料
+            int totalCount = spots.Count();
+            //每頁要顯示幾筆資料
+            int pageSize = searchDTO.pageSize;   //searchDTO.pageSize ?? 9;
+            //目前第幾頁
+            int page = searchDTO.page;
+
+            //計算總共有幾頁
+            int totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
+
+            //分頁
+            spots = spots.Skip((page - 1) * pageSize).Take(pageSize);
+
+
+            //包裝要傳給client端的資料
+            SpotsPagingDTO spotsPaging = new SpotsPagingDTO();
+            spotsPaging.TotalCount = totalCount;
+            spotsPaging.TotalPages = totalPages;
+            spotsPaging.SpotsResult = spots.ToList();
+
+
+            return Json(spotsPaging);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MSIT158Site.Models;
+using MSIT158Site.Models.DTO;
 using System.Diagnostics;
 
 namespace MSIT158Site.Controllers
@@ -47,5 +48,13 @@ namespace MSIT158Site.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        //它使用了 FromBody 屬性，表示要從 HTTP 請求的主體中讀取資料
+        public IActionResult Spots([FromBody] SearchDTO search)
+        {
+           // 返回 JSON 物件，包含從客戶端接收到的搜尋條件或其他資訊
+           return Json(search);
+        }
+
+        
     }
 }
