@@ -7,6 +7,7 @@ namespace MSIT158Site.Controllers
 {
     public class HomeController : Controller
     {
+       
         private readonly ILogger<HomeController> _logger;
         private readonly MyDBContext _context;
 
@@ -14,6 +15,8 @@ namespace MSIT158Site.Controllers
         {
             _logger = logger;
             _context = context;
+            
+
         }
 
         public IActionResult Index()
@@ -54,7 +57,10 @@ namespace MSIT158Site.Controllers
            // 返回 JSON 物件，包含從客戶端接收到的搜尋條件或其他資訊
            return Json(search);
         }
+        public IActionResult CallApi()
+        {
+            return View();
+        }
 
-        
     }
 }

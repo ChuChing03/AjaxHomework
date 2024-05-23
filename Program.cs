@@ -13,9 +13,15 @@ namespace MSIT158Site
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<MyDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection")));
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+                
+            });
 
             var app = builder.Build();
-
+            app.UseCors("AllowAll");
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
