@@ -1,105 +1,153 @@
-﻿﻿
-@{
+﻿@{
     ViewData["Title"] = "Spots";
 }
 
-<h1>台北市景點</h1>
-<div class="row mb-3">
-    <div class="col-3"></div>
-    <div class="col-6">
-        <nav>
-            <ul class="pagination" id="ul1">
-            </ul>
-        </nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <h1>台北市景點</h1>
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-2">
+                <select class="form-select" id="selectSort">
+                    <option value="spotId-asc">景點編號 (升冪排列)</option>
+                    <option value="spotId-desc">景點編號 (降冪排列)</option>
+                    <option value="spotTitle-asc">景點名稱 (升冪排列)</option>
+                    <option value="spotTitle-desc">景點名稱 (降冪排列)</option>
+                </select>
+            </div>
+            <div class="col-3"></div>
+            <div class="col-4">
+                <input type="search" placeholder="搜尋景點資料" class="form-control" id="inputSearch" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <nav>
+                    <ul class="pagination justify-content-center" id="ul1"></ul>
+                </nav>
+                <div class="d-flex justify-content-center">
+                    <input type="number" id="pageInput" min="1" class="form-control w-25 text-center" placeholder="1" />
+                    <span>/</span>
+                    <span id="totalPagesSpan"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-center">
+                    <div id="categoryButtons" class="btn-group"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="div1"></div>
     </div>
-    <div class="col-3">
-        <input type="search" placeholder="搜尋景點資料" class="form-control" id="inputSearch" />
-    </div>
-</div>
-<div class="row row-cols-1 row-cols-md-3 g-4" id="div1">
-</div>
 
+    @section Scripts {
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            const divSpots = document.querySelector('#div1');
+            const ulPaging = document.querySelector('#ul1');
+            const inpSearch = document.querySelector('#inputSearch');
+            const selectSort = document.querySelector('#selectSort');
+            const pageInput = document.querySelector('#pageInput');
+            const totalPagesSpan = document.querySelector('#totalPagesSpan');
 
-@section Styles{
-    <style>
+            const searchData = {
+                "keyword": "",
+                "page": 1,
+                "pageSize": 9,
+                "sortBy": "spotId",
+                "sortType": "asc"
+            };
 
-
-    </style>
-}
-@section Scripts{
-    <script>
-        const divSpots = document.querySelector('#div1');
-        const ulPaging = document.querySelector('#ul1');
-        const inpSearch = document.querySelector('#inputSearch');
-
-
-        const searchData = {
-            "categoryId": 0,
-            "keyword": "公園",
-            "page": 1,
-            "pageSize": 9,
-            "sortBy": "SpotId",
-            "sortType": "asc"
-        };
-        const pagingHandler = page => {
-            searchData.page = page;
-            loadSpots();
-        }
-        const loadSpots = async () => {
-            const url = 'https://localhost:7120/api/Spots';
-
-            const response = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(searchData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const data = await response.json();
-            console.log(data);
-
-
-
-            //顯示景點資料
-            const spots = data.spotsResult.map(spot => {
-                const { spotId, spotTitle, spotDescription, address, spotImage } = spot;
-                return (`
-                                                       <div class="col">
-                                        <div class="card">
-                                                    <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
-                                            <div class="card-body">
-                                                                <h5 class="card-title">${spotId} ${spotTitle}</h5>
-                                                                        <p class="card-text">${spotDescription.length <= 100 ? spotDescription : spotDescription.substring(0, 100)}</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                                <small class="text-body-secondary">${address}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                               `)
-            })
-            divSpots.innerHTML = spots.join("");
-
-            //顯示分頁按鈕
-            let liPages = "";
-            for (let i = 1, max = data.totalPages; i <= max; i++) {
-                liPages += `<li class="page-item" onclick="pagingHandler(${i})"><a class="page-link">${i}</a></li>`
-            }
-            ulPaging.innerHTML = liPages;
-        }
-
-        // (async ()=>{
-        loadSpots();
-        //  })();
-
-
-
-        inpSearch.addEventListener('keydown', event => {
-            if (event.keyCode === 13) {
-                searchData.keyword = event.target.value;
+            const pagingHandler = page => {
+                searchData.page = page;
                 loadSpots();
             }
-        })
-    </script>
-}
+
+            const loadSpots = async () => {
+                const url = 'https://localhost:7144/api/Spots';
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(searchData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                console.log(data);
+
+                // 顯示景點資料
+                const spots = data.spotsResult.map(spot => {
+                    const { spotId, spotTitle, spotDescription, address, spotImage } = spot;
+                    return (`
+                                <div class="col">
+                                    <div class="card">
+                                        <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${spotId} ${spotTitle}</h5>
+                                            <p class="card-text">${spotDescription.length <= 100 ? spotDescription : spotDescription.substring(0, 100)}</p>
+                                        </div>
+                                        <div class="card-footer">
+                                            <small class="text-body-secondary">${address}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                });
+                divSpots.innerHTML = spots.join("");
+
+                // 顯示分頁按鈕
+                let liPages = "";
+                for (let i = 1; i <= 9 && i <= data.totalPages; i++) {
+                    liPages += `<li class="page-item ${i === searchData.page ? 'active' : ''}" onclick="pagingHandler(${i})"><a class="page-link">${i}</a></li>`;
+                }
+                if (data.totalPages > 9) {
+                    liPages += `<li class="page-item disabled"><a class="page-link">...</a></li>`;
+                }
+                ulPaging.innerHTML = liPages;
+
+                // 顯示總頁數
+                totalPagesSpan.textContent = data.totalPages;
+            }
+
+            const updateSort = () => {
+                const [sortBy, sortType] = selectSort.value.split('-');
+                searchData.sortBy = sortBy;
+                searchData.sortType = sortType;
+                loadSpots();
+            }
+
+            selectSort.addEventListener('change', updateSort);
+
+            inpSearch.addEventListener('keydown', event => {
+                if (event.keyCode === 13) {
+                    searchData.keyword = event.target.value;
+                    loadSpots();
+                }
+            });
+
+            pageInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    const page = parseInt(event.target.value);
+                    if (page > 0 && page <= parseInt(totalPagesSpan.textContent)) {
+                        searchData.page = page;
+                        loadSpots();
+                    }
+                }
+            });
+
+            loadSpots();
+        </script>
+    }
+</body>
+</html>

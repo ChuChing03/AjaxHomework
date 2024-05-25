@@ -1,33 +1,37 @@
-﻿﻿
-
-﻿
-
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Register";
 }
-
 
 <div class="row">
     <div class="col-3"></div>
     <div class="col-6">
         <h1>Register</h1>
-        <form method="post" action="~/api/register" id="userForm">
+        <form method="post" action="~/api/register" id="userForm" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="InputName" class="form-label">姓名</label>
                 <input type="text" class="form-control" id="InputName" name="name">
-
+                <div class="invalid-feedback" id="nameFeedback"></div>
             </div>
             <div class="mb-3">
                 <label for="InputEmail" class="form-label">電子郵件</label>
                 <input type="email" class="form-control" id="InputEmail" name="email">
+                <div class="invalid-feedback" id="emailFeedback"></div>
+            </div>
+            <div class="mb-3">
+                <label for="InputPassword" class="form-label">密碼</label>
+                <input type="password" class="form-control" id="InputPassword" name="password">
+                <div class="invalid-feedback" id="passwordFeedback"></div>
+            </div>
+            <div class="mb-3">
+                <label for="InputConfirmPassword" class="form-label">確認密碼</label>
+                <input type="password" class="form-control" id="InputConfirmPassword" name="confirmpassword">
+                <div class="invalid-feedback" id="confirmPasswordFeedback"></div>
             </div>
             <div class="mb-3">
                 <label for="InputAge" class="form-label">年紀</label>
                 <input type="number" class="form-control" id="InputAge" name="age">
             </div>
             <div class="mb-3">
-                @* //for 屬性用於建立 <label> 元素與表單控件之間的關聯 點擊文字標籤 他會跳到檔案輸入框*@
                 <label for="formFile" class="form-label">圖像</label>
                 <input class="form-control" type="file" id="formFile" name="avatar">
             </div>
@@ -35,39 +39,80 @@
             <button type="submit" class="btn btn-primary" id="buttonSubmit">送出</button>
         </form>
         <div id="div1" class="alert alert-info mt-3"></div>
-
     </div>
     <div class="col-3"></div>
 </div>
 
-@section Styles{
+@section Styles {
     <style>
-
-
+        .invalid-feedback {
+            display: none;
+        }
     </style>
 }
-@section Scripts{
+
+@section Scripts {
     <script>
         const divResult = document.querySelector('#div1');
         const btnSubmit = document.querySelector('#buttonSubmit');
         const inpName = document.querySelector('#InputName');
         const inpEmail = document.querySelector('#InputEmail');
-        const inpAge = document.querySelector('#InputAge');
+        const inpPassword = document.querySelector('#InputPassword');
+        const inpConfirmPassword = document.querySelector('#InputConfirmPassword');
 
-
+        const nameFeedback = document.querySelector('#nameFeedback');
+        const emailFeedback = document.querySelector('#emailFeedback');
+        const passwordFeedback = document.querySelector('#passwordFeedback');
+        const confirmPasswordFeedback = document.querySelector('#confirmPasswordFeedback');
 
         btnSubmit.addEventListener('click', async (evt) => {
-            evt.preventDefault(); //防止預設行為的發生
+            evt.preventDefault(); // 防止預設行為的發生
 
-            //將資料放進FormData
+            // 重置錯誤訊息
+            nameFeedback.textContent = '';
+            emailFeedback.textContent = '';
+            passwordFeedback.textContent = '';
+            confirmPasswordFeedback.textContent = '';
+            nameFeedback.style.display = 'none';
+            emailFeedback.style.display = 'none';
+            passwordFeedback.style.display = 'none';
+            confirmPasswordFeedback.style.display = 'none';
+
+            let hasError = false;
+
+            // 檢查必填欄位
+            if (inpName.value.trim() === '') {
+                nameFeedback.textContent = '必須新增會員姓名';
+                nameFeedback.style.display = 'block';
+                hasError = true;
+            }
+
+            if (inpEmail.value.trim() === '') {
+                emailFeedback.textContent = '必須新增電子郵件';
+                emailFeedback.style.display = 'block';
+                hasError = true;
+            }
+
+            if (inpPassword.value.trim() === '') {
+                passwordFeedback.textContent = '必須新增密碼';
+                passwordFeedback.style.display = 'block';
+                hasError = true;
+            }
+
+            if (inpPassword.value.trim() !== inpConfirmPassword.value.trim()) {
+                confirmPasswordFeedback.textContent = '密碼與確認密碼不一致';
+                confirmPasswordFeedback.style.display = 'block';
+                hasError = true;
+            }
+
+            if (hasError) {
+                return;
+            }
+
+            // 將資料放進 FormData
             const myForm = document.querySelector('#userForm');
             const formData = new FormData(myForm);
 
-            //formData.append("password", "12345678");
-            //讀出formData中的資料
-            //for(const pair of formData.entries()){
-            //    console.log(`${pair[0]}:${pair[1]}`);
-            //}
             const url = '@Url.Content("~/api/register/")';
             const response = await fetch(url, {
                 method: 'POST',
@@ -77,22 +122,16 @@
             const data = await response.text();
             divResult.textContent = data;
 
+            // 檢查伺服器返回的訊息
+            if (data.includes('電子郵件已存在')) {
+                emailFeedback.textContent = '電子郵件已存在';
+                emailFeedback.style.display = 'block';
+            }
 
-            //console.log(inpName.value);
-            //const url = `@Url.Content("~/api/register/")?email=${inpEmail.value}&age=${inpAge.value}&name=${inpName.value}`;
-
-            //const response =  await fetch(url);
-            //const data = await response.text();
-            //divResult.textContent = data;
-
-        })
-
-                      //(async ()=>{
-                      //      const url = '@Url.Content("~/api/register")?id=1&age=29&name=Mary';
-                      //      const response = await fetch(url);
-                      //      const data = await response.text();
-                      //      divResult.innerHTML = data;
-                      //})();
+            if (data.includes('姓名已存在')) {
+                nameFeedback.textContent = '姓名已存在';
+                nameFeedback.style.display = 'block';
+            }
+        });
     </script>
 }
-

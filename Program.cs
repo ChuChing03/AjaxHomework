@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using MSIT158Site.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MSIT158Site
 {
@@ -17,6 +18,10 @@ namespace MSIT158Site
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<MyDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection")));
+
+            // Register the PasswordHasher service
+            builder.Services.AddSingleton<IPasswordHasher<Member>, PasswordHasher<Member>>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
