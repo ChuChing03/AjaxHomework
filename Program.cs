@@ -1,3 +1,8 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using MSIT158Site.Models;
 
@@ -11,22 +16,18 @@ namespace MSIT158Site
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
             builder.Services.AddDbContext<MyDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection")));
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
                     builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-                
             });
 
             var app = builder.Build();
-            app.UseCors("AllowAll");
-            // Configure the HTTP request pipeline.
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -40,6 +41,8 @@ namespace MSIT158Site
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.UseCors("AllowAll");
 
             app.Run();
         }

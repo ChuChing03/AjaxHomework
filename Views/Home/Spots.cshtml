@@ -1,9 +1,23 @@
-﻿@{
+﻿﻿
+@{
     ViewData["Title"] = "Spots";
 }
 
 <h1>台北市景點</h1>
-
+<div class="row mb-3">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <nav>
+            <ul class="pagination" id="ul1">
+            </ul>
+        </nav>
+    </div>
+    <div class="col-3">
+        <input type="search" placeholder="搜尋景點資料" class="form-control" id="inputSearch" />
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="div1">
+</div>
 
 
 @section Styles{
@@ -14,36 +28,78 @@
 }
 @section Scripts{
     <script>
-        // 定義要傳送的搜尋資料，以 JSON 格式表示
-            const searchData = {
+        const divSpots = document.querySelector('#div1');
+        const ulPaging = document.querySelector('#ul1');
+        const inpSearch = document.querySelector('#inputSearch');
+
+
+        const searchData = {
             "categoryId": 0,
-            "keyword": "",
+            "keyword": "公園",
             "page": 1,
             "pageSize": 9,
             "sortBy": "SpotId",
             "sortType": "asc"
         };
-        // 執行一個立即函式，用於發送 HTTP 請求
-        (async () => {
-            // 定義 API 端點的 URL
-            const url = '@Url.Content("~/api/spots")'; // 注意：此處的 @Url.Content 是 ASP.NET Core 中的 Razor 語法，用於取得相對路徑的絕對 URL
-            // 使用 fetch 函式發送 HTTP POST 請求到指定的 URL
+        const pagingHandler = page => {
+            searchData.page = page;
+            loadSpots();
+        }
+        const loadSpots = async () => {
+            const url = 'https://localhost:7120/api/Spots';
+
             const response = await fetch(url, {
-                method: 'POST', // 指定請求方法為 POST
-                body: JSON.stringify(searchData), // 將 searchData 物件轉換為 JSON 字串 指定為 HTTP 請求的主體。這樣，當前端發送 請求到後端時，後端就能夠讀取 JSON 資料
+                method: 'POST',
+                body: JSON.stringify(searchData),
                 headers: {
-                    //Content-Type 用於指定請求主體中的資料格式
-                    //'application/json' 表示請求主體中資料是 JSON 格式
-                    'Content-Type': 'application/json' 
+                    'Content-Type': 'application/json'
                 }
             });
+            const data = await response.json();
+            console.log(data);
 
-            // 從 API 端點的回應中讀取 JSON 格式的資料
-            const datas = await response.json();
 
-            // 將回傳的資料輸出到控制台
-            console.log(datas);
-        })();
 
+            //顯示景點資料
+            const spots = data.spotsResult.map(spot => {
+                const { spotId, spotTitle, spotDescription, address, spotImage } = spot;
+                return (`
+                                               <div class="col">
+                                <div class="card">
+                                            <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
+                                    <div class="card-body">
+                                                        <h5 class="card-title">${spotId} ${spotTitle}</h5>
+                                                                <p class="card-text">${spotDescription.length <= 100 ? spotDescription : spotDescription.substring(0, 100)}</p>
+                                    </div>
+                                    <div class="card-footer">
+                                                        <small class="text-body-secondary">${address}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                                       `)
+            })
+            divSpots.innerHTML = spots.join("");
+
+            //顯示分頁按鈕
+            let liPages = "";
+            for (let i = 1, max = data.totalPages; i <= max; i++) {
+                liPages += `<li class="page-item" onclick="pagingHandler(${i})"><a class="page-link">${i}</a></li>`
+            }
+            ulPaging.innerHTML = liPages;
+        }
+
+        // (async ()=>{
+        loadSpots();
+        //  })();
+
+
+
+        inpSearch.addEventListener('keydown', event => {
+            if (event.keyCode === 13) {
+                searchData.keyword = event.target.value;
+                loadSpots();
+            }
+        })
     </script>
 }
